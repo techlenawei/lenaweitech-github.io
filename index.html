@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lenawei Safaris | Command Center</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#009688" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap">
+  <style>
+    :root {
+      --main: #009688;
+      --main-dark: #00695c;
+      --main-light: #b2dfdb;
+      --background: #f3f7fa;
+      --background-dark: #181c1f;
+      --card: #fff;
+      --card-dark: #23272a;
+      --text: #222;
+      --text-dark: #e0e0e0;
+      --accent: #fbc02d;
+      --danger: #d84315;
+      --kanban-in-progress: #fbc02d;
+      --kanban-todo: #80cbc4;
+      --kanban-done: #66bb6a;
+    }
+    html, body { min-height: 100vh; }
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+      margin: 0; padding: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+    .dark-mode { background: var(--background-dark); color: var(--text-dark);}
+    header {
+      z-index: 2; position: sticky; top:0;
+      background: var(--main); color: #fff;
+      text-align: center;
+      padding: 1.2rem 1rem 1rem 1rem;
+      font-size: 2.1rem; font-weight: bold;
+      box-shadow: 0 2px 8px #00968822;
+      display: flex; align-items: center; border-radius: 0 0 24px 24px;
+      gap: 0.5em; flex-wrap: wrap;
+    }
+    .header-title { flex: 1; text-align: center; }
+    .theme-toggle {
+      background: var(--card); color: var(--main);
+      border: none; border-radius: 50%; width: 44px; height: 44px;
+      font-size: 1.5rem; cursor: pointer; z-index: 10;
+      box-shadow: 0 2px 8px #0002; transition: background 0.3s, color 0.3s;
+      margin-right: 8px;
+    }
+    .logout-btn {
+      background: var(--main-dark); color: #fff;
+      border: none; border-radius: 6px; font-size: 1rem; font-weight: bold;
+      margin-left: 10px; padding: .5em 1.1em; cursor: pointer; transition: background 0.2s;
+    }
+    .logout-btn:hover { background: #d84315; }
+    .dark-mode .theme-toggle { background: var(--card-dark); color: var(--accent);}
+    .dropdown {
+      position: relative; display: inline-block; margin-right: 12px;
+    }
+    .dropdown-btn {
+      background: var(--main);
+      color: #fff; padding: 0.7em 1.2em; border: none; border-radius: 7px;
+      font-size: 1.05em; cursor: pointer; font-weight: 500; outline: none;
+      display: flex; align-items: center; min-width: 120px; user-select: none;
+      transition: background 0.2s;
+    }
+    .dropdown-btn[aria-expanded="true"] { background: var(--main-dark); color: #fff; }
+    .dropdown-content {
+      display: none; position: absolute; left: 0; right: 0; top: calc(100% + 4px);
+      background: var(--card); color: var(--text); border-radius: 0 0 9px 9px;
+      box-shadow: 0 2px 16px #0002; padding: 10px 16px; min-width: 180px;
+      z-index: 1002; font-size: 1em; animation: fadeIn .2s;
+    }
+    .dropdown-content a, .dropdown-content button {
+      display: block; margin-bottom: 0.4em; color: var(--main-dark);
+      text-decoration: underline; cursor: pointer; background:none; border:none;
+      font-size:1em; text-align:left; width:100%; padding:0;
+    }
+    .dropdown-content a:last-child, .dropdown-content button:last-child {margin-bottom:0;}
+    .dropdown.open .dropdown-content { display: block; }
+    .dark-mode .dropdown-content {background: var(--card-dark); color: var(--text-dark);}
+    .dark-mode .dropdown-content a, .dark-mode .dropdown-content button { color: var(--accent);}
+    @keyframes fadeIn {from {opacity:0;} to {opacity:1;}}
+    .welcome-banner {
+      font-size:1.2rem; padding:1.1rem;
+      background:linear-gradient(75deg, var(--main) 60%, var(--accent) 100%);
+      margin:1rem 0 0.5rem 0; border-radius:10px; color: #fff; letter-spacing:0.5px;
+      text-align:center; font-weight: bold; box-shadow: 0 4px 14px #00968830;
+    }
+    .search-section {
+      margin: 1.3rem auto 0.5rem auto; max-width: 920px;
+      background: var(--card); padding: 1.1rem 1rem; border-radius: 12px;
+      box-shadow: 0 0 14px #00968811; z-index:2; position:relative;
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    }
+    .search-section input[type="text"] {
+      flex: 1 1 350px; min-width: 0; padding: 12px 18px; font-size: 1.07rem;
+      border-radius: 6px; border: 1px solid #ccc; background: #f9f9f9; color: var(--text); outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-section input[type="text"]:focus { border-color: var(--main);}
+    .search-section button {
+      padding: 0.7rem 1.2rem; font-size: 1rem; border-radius: 6px; border: none;
+      background: var(--main); color: white; font-weight: bold; cursor: pointer;
+      margin-left: 4px; transition: background 0.2s;
+    }
+    .search-section button:hover { background: var(--main-dark);}
+    .popup {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--main-dark); color: #fff; padding: 1rem 2rem;
+      border-radius: 12px; display: none; z-index: 1000; font-size: 1.1rem;
+      box-shadow: 0 6px 24px #0009; min-width: 250px; max-width: 90vw;
+      animation: fadeOut 7s forwards;
+    }
+    @keyframes fadeOut { 0% {opacity: 1;} 92% {opacity: 1;} 100% {opacity: 0; display: none;}}
+    #login-screen {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.92);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 2000; color: white;
+    }
+    #login-screen input, #login-screen button {
+      margin: 6px 0; width: 300px; max-width: 95vw; padding: 10px; font-size: 1.1rem; border-radius: 5px; border: none;
+    }
+    #login-screen input { color: #333; }
+    #login-screen button { background: var(--main-dark); color: #fff; font-weight: bold; cursor: pointer;}
+    #content {display:none; z-index:2; position:relative;}
+    .features-section, .finance-section, .gallery-section, .team-section, .calendar-section, .kanban-section, .poll-section, .chat-section, .quote-section, .resource-section {
+      max-width: 900px; margin: 1.2rem auto; background: var(--card); border-radius: 12px; box-shadow: 0 6px 20px #0096880a;
+      padding: 1.5rem 1.3rem 1.25rem 1.3rem;
+    }
+    .dark-mode .features-section,
+    .dark-mode .finance-section,
+    .dark-mode .gallery-section,
+    .dark-mode .team-section,
+    .dark-mode .calendar-section,
+    .dark-mode .kanban-section,
+    .dark-mode .poll-section,
+    .dark-mode .chat-section,
+    .dark-mode .quote-section,
+    .dark-mode .resource-section {
+      background: var(--card-dark); color: var(--text-dark);
+      box-shadow: 0 6px 20px #222b;
+    }
+    .features-section ul, .finance-section ul, .finance-section ol  {
+      margin-top: 0.9em; margin-bottom: 0.9em; padding-left: 1.2em; font-size: 1.06em;
+    }
+    .features-section li {margin-bottom: 0.35em;}
+    .finance-section h2 {color: var(--main);}
+    .finance-section hr {margin: 1.2em 0;}
+    .finance-notice {margin-bottom: 0.8em; color: var(--main-dark); font-weight: 500; background: var(--main-light); padding: 0.6em 1em; border-radius: 6px;}
+    .section-title { color: var(--main); font-weight: bold; margin-top: 1.1em; margin-bottom: 0.4em; font-size: 1.08em;}
+    .finance-table-container { overflow-x: auto; margin-bottom: 1.2em;}
+    .finance-table { border-collapse: collapse; width: 100%; background: #fafafa; color: #222; margin-bottom: 1em;}
+    .finance-table th, .finance-table td { border: 1px solid #b2dfdb; padding: 0.7em 1em; text-align: center;}
+    .finance-table th { background: var(--main); color: #fff; font-weight: bold;}
+    .edit-btn, .save-btn, .cancel-btn {
+      background: var(--main); color: #fff; border: none; border-radius: 5px; padding: 6px 18px; font-size: 1em; cursor: pointer;
+      margin: 8px 5px 8px 0;
+    }
+    .edit-btn:hover, .save-btn:hover { background: var(--main-dark);}
+    .cancel-btn {background: #e57373;}
+    .cancel-btn:hover { background: #b71c1c;}
+    .note { color: #d84315; font-style: italic; background: #fff3e0; padding: 0.5em 0.8em; border-radius: 6px; font-size: 1em; }
+    .dark-mode .finance-table th, .dark-mode .finance-table td { background: #222; color: #eee;}
+    .dark-mode .note { background: #332; color: #ffcdd2;}
+    a, a:visited { color: var(--main-dark); text-decoration: underline; }
+    .dark-mode a, .dark-mode a:visited { color: var(--accent);}
+    @media screen and (max-width: 900px) {
+      .features-section, .finance-section, .gallery-section, .team-section, .calendar-section, .kanban-section, .poll-section, .chat-section, .quote-section, .resource-section { max-width: 97vw; }
+    }
+    @media screen and (max-width: 600px) {
+      header { font-size: 1.2rem; padding: 1.1rem 0.5rem;}
+      .features-section, .finance-section, .gallery-section, .team-section, .calendar-section, .kanban-section, .poll-section, .chat-section, .quote-section, .resource-section { padding: 1.1rem 0.5rem;}
+      .welcome-banner { font-size:1rem; padding:0.8rem;}
+      .gallery-carousel img { width:100px; height:70px;}
+    }
+    #password-modal {
+      display: none; position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.6); z-index: 4000; align-items: center; justify-content: center;
+    }
+    #password-modal .modal-content {
+      background: #fff; color: #222; border-radius: 10px; box-shadow: 0 6px 30px #1117;
+      padding: 2.2rem 2.5rem 2rem 2.5rem; max-width: 95vw; text-align: center;
+    }
+    #password-modal input[type="password"] {
+      padding: 8px 10px; font-size: 1.08rem; border-radius: 6px; border: 1px solid #ccc;
+      margin-top: 0.8em; width: 75%; max-width: 240px;
+    }
+    #password-modal button {
+      padding: 0.6em 1.2em; background: var(--main-dark); color: #fff;
+      border:none; border-radius:5px; font-weight:bold; margin: 1.1em 0.4em 0 0.4em; cursor: pointer; font-size: 1em;
+    }
+    #password-modal .err { color: #e53935; margin-top: 0.7em;}
+    .dark-mode #password-modal .modal-content {background: #23272a; color: #fff;}
+    .gallery-section {
+      background: var(--card); color: var(--text); border-radius: 8px; padding: 1rem; margin: 1.5rem auto;
+      text-align: center; max-width: 900px; box-shadow: 0 2px 10px #00968815;
+    }
+    .gallery-carousel {
+      display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; margin-top: 1.1rem;
+    }
+    .gallery-carousel img {
+      width: 180px; height: 120px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 10px #0002;
+      cursor: pointer; border: 2px solid var(--main-light); background: #fff; transition: transform .2s, border .2s;
+    }
+    .gallery-carousel img:hover { transform: scale(1.07); border:2px solid var(--main-dark);}
+    .dark-mode .gallery-section { background: var(--card-dark); color: var(--text-dark);}
+    .dark-mode .gallery-carousel img {background: #23272a;}
+    .kanban-board { display: flex; gap: 18px; flex-wrap: wrap; }
+    .kanban-col {
+      background: #f9f9f9; border-radius: 8px; padding: 1em; min-width: 180px; flex: 1 1 0;
+      box-shadow: 0 1px 6px #0001; min-height: 120px;
+    }
+    .kanban-col h3 { margin-top:0; text-align:center;}
+    .kanban-task { background: #fff; border-radius:5px; box-shadow: 0 1px 4px #0002;
+      margin: 0.6em 0; padding: 0.7em 1em; cursor: grab; font-size:0.97em;
+    }
+    .kanban-col[data-status="todo"] { border-top: 4px solid var(--kanban-todo);}
+    .kanban-col[data-status="inprogress"] { border-top: 4px solid var(--kanban-in-progress);}
+    .kanban-col[data-status="done"] { border-top: 4px solid var(--kanban-done);}
+    .poll-section label { display:block; margin:0.6em 0;cursor:pointer;}
+    .poll-results { margin-top:0.8em; }
+    .poll-bar { background: var(--main-light); height: 20px; border-radius:5px; margin:4px 0;}
+    .poll-bar-inner { background: var(--main-dark); height: 100%; border-radius:5px; color:#fff; text-align:right; padding-right:7px;}
+    .chat-messages { background: #f9f9f9; border-radius: 7px; min-height: 100px; max-height:200px; overflow-y:auto; padding: 0.5em 0.7em; margin-bottom:0.8em;}
+    .chat-input { width: 100%; padding: 7px; margin-top:2px; border-radius:5px; border:1px solid #ccc;}
+    .chat-btn { background: var(--main); color:#fff; border:none; border-radius:5px; padding:0.6em 1.2em; font-weight:bold; margin-left:5px; cursor:pointer;}
+    .quote-section { text-align:center; font-size:1.2em; font-style:italic; color: var(--main-dark);}
+    .resource-section ul { list-style:circle; }
+    .resource-section a { color: var(--main-dark); }
+    .dark-mode .resource-section a { color: var(--accent);}
+    .leaderboard { margin-top:1em; }
+    .leaderboard li { margin-bottom: 0.25em; }
+    .badge { background: var(--main-dark); color: #fff; border-radius: 6px; padding: 2px 8px; margin-left: 6px; font-size:0.95em;}
+    .dark-mode .kanban-col, .dark-mode .chat-messages { background: #23272a; color: #fff;}
+    .dark-mode .kanban-task { background: #181c1f; color: #fff;}
+    .dark-mode .poll-bar { background: #333;}
+    .dark-mode .poll-bar-inner { background: var(--main);}
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+  <div id="login-screen">
+    <h2>🔐 Lenawei Safaris Secure Login</h2>
+    <p id="hint">Only Maestros may enter...</p>
+    <input type="text" id="loginName" placeholder="Enter your name" autocomplete="username" />
+    <button id="loginBtn">Access</button>
+  </div>
+  <div id="password-modal">
+    <div class="modal-content">
+      <div id="funny-pop"></div>
+      <input type="password" id="finance-password" placeholder="Finance Manager Password"/><br>
+      <button id="finance-pwd-submit">Unlock</button>
+      <button onclick="closePwdModal()">Cancel</button>
+      <div class="err" id="pwd-err" style="display:none;"></div>
+    </div>
+  </div>
+  <div id="content">
+    <header>
+      <button class="theme-toggle" id="themeToggle" title="Switch theme">🌙</button>
+      <span class="header-title">🌍 Lenawei Safaris Command Center</span>
+      <div class="dropdown" id="mainDropdown">
+        <button class="dropdown-btn" aria-haspopup="menu" aria-expanded="false" id="dropdownBtn">Quick Links ⬇️</button>
+        <div class="dropdown-content" id="dropdownMenu">
+          <a href="#features-section">Features/Suggestions</a>
+          <a href="#gallery-section">Safari Gallery</a>
+          <a href="#finance-section">Finance Table</a>
+          <a href="#team-section">Team & Roles</a>
+          <a href="#kanban-section">Task Board</a>
+          <a href="#calendar-section">Calendar</a>
+          <a href="#poll-section">Team Polls</a>
+          <a href="#chat-section">Team Chat</a>
+          <a href="#quote-section">Quotes Widget</a>
+          <a href="#resource-section">Resource Library</a>
+          <a href="https://facebook.com/lenaweisafaris" target="_blank">Facebook Page</a>
+          <a href="https://instagram.com/lenawei_safaris" target="_blank">Instagram Page</a>
+        </div>
+      </div>
+      <button id="logoutBtn" class="logout-btn">Logout</button>
+      <button id="downloadPDF" title="Download dashboard as PDF/Print">⬇️ PDF/Print</button>
+    </header>
+    <div class="welcome-banner" id="welcomeBanner" style="display:none;"></div>
+    <div class="search-section">
+      <input class="search" type="text" id="searchInput" placeholder="🔍 Search for anything in this dashboard..." aria-label="Search" />
+      <button id="searchBtn" title="Search">🔎</button>
+    </div>
+    <!-- Features & Suggestions Section -->
+    <section class="features-section" id="features-section">
+      <h2 id="features">✨ Lenawei Command Center: Features & Suggestions</h2>
+      <ul>
+        <li><a href="#finance-section"><b>Excel-like Finance Table</b></a>: Editable only by Finance Manager, with real-time calculations.</li>
+        <li><a href="#gallery-section"><b>Photo/Video Gallery</b></a>: Upload, highlight, and share best safari moments.</li>
+        <li><a href="#team-section"><b>Team & Roles</b></a>: Role-based dashboard, presence, badges.</li>
+        <li><a href="#kanban-section"><b>Task Board</b></a>: Kanban board for bookings, tasks, and planning.</li>
+        <li><a href="#calendar-section"><b>Team Calendar</b></a>: Upcoming events, syncable, RSVP.</li>
+        <li><a href="#poll-section"><b>Team Polls</b></a>: Quick voting and results visualization.</li>
+        <li><a href="#chat-section"><b>Team Chat</b></a>: Internal messaging and Q&A.</li>
+        <li><a href="#quote-section"><b>Quotes Widget</b></a>: Rotating daily safari/motivation quotes.</li>
+        <li><a href="#resource-section"><b>Resource Library</b></a>: Download forms, guides, itineraries, waivers.</li>
+        <li>
+          <b>Other:</b> Receipts, leaderboards, badge rewards, live social stats, notifications, mobile install, push notifications, client feedback, GDPR export, and more!
+        </li>
+      </ul>
+      <p class="features-note"><b>Tip:</b> More features can be added as Lenawei grows! Tell us what you want to see next.</p>
+    </section>
+    <!-- Gallery Section -->
+    <section class="gallery-section" id="gallery-section">
+      <h2>🐾 Safari Gallery Highlights</h2>
+      <div class="gallery-carousel">
+        <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" alt="Lion on safari" title="Lion"/>
+        <img src="https://images.unsplash.com/photo-1508672019048-805c876b67e2?auto=format&fit=crop&w=400&q=80" alt="Safari van" title="Safari van"/>
+        <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" alt="Kids on safari" title="Kids"/>
+        <img src="https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=400&q=80" alt="Elephant" title="Elephant"/>
+      </div>
+      <input type="file" id="galleryUpload" accept="image/*" style="margin-top:1em;">
+      <button id="galleryUploadBtn">Add Photo</button>
+      <div id="galleryUploadMsg" style="margin-top:0.7em;color:var(--danger);font-size:1em;"></div>
+    </section>
+    <!-- Team & Roles Section -->
+    <section class="team-section" id="team-section">
+      <h2>🧑‍🤝‍🧑 Meet the Team & Roles</h2>
+      <ul>
+        <li><b>Lucas Bell</b> <span class="badge">Finance Manager</span> <span title="Active" style="color:lime;font-size:1.2em;">●</span></li>
+        <li><b>Jackson Wachiuri</b> <span class="badge">Bookings</span> <span title="Active" style="color:lime;font-size:1.2em;">●</span></li>
+        <li><b>Lucy Kago</b> <span class="badge">Marketing</span> <span title="Active" style="color:lime;font-size:1.2em;">●</span></li>
+        <li><b>Pauline Tamara</b> <span class="badge">Support</span> <span title="Active" style="color:lime;font-size:1.2em;">●</span></li>
+        <li><b>Titus Gitonga</b> <span class="badge">Driver</span> <span title="Inactive" style="color:orange;font-size:1.2em;">●</span></li>
+        <li><b>TechLenawei</b> <span class="badge">Admin</span> <span title="Active" style="color:lime;font-size:1.2em;">●</span></li>
+      </ul>
+      <div class="leaderboard">
+        <b>🏆 Contribution Leaderboard:</b>
+        <ol>
+          <li>Lucas Bell <span class="badge">M-Pesa Hero</span></li>
+          <li>Jackson Wachiuri <span class="badge">Booking Star</span></li>
+          <li>Lucy Kago <span class="badge">Marketing Queen</span></li>
+        </ol>
+      </div>
+    </section>
+    <!-- Kanban Section -->
+    <section class="kanban-section" id="kanban-section">
+      <h2>📋 Task Board (Kanban)</h2>
+      <div class="kanban-board" id="kanbanBoard">
+        <div class="kanban-col" data-status="todo">
+          <h3>To Do</h3>
+          <div class="kanban-task" draggable="true">Book park permits</div>
+          <div class="kanban-task" draggable="true">Send payment reminders</div>
+        </div>
+        <div class="kanban-col" data-status="inprogress">
+          <h3>In Progress</h3>
+          <div class="kanban-task" draggable="true">Confirm van hire</div>
+        </div>
+        <div class="kanban-col" data-status="done">
+          <h3>Done</h3>
+          <div class="kanban-task" draggable="true">Submit company registration</div>
+        </div>
+      </div>
+    </section>
+    <!-- Calendar Section -->
+    <section class="calendar-section" id="calendar-section">
+      <h2>📅 Team Calendar</h2>
+      <ul>
+        <li><b>2nd July:</b> Team planning call (Zoom)</li>
+        <li><b>7th July:</b> Client trip briefing</li>
+        <li><b>15th July:</b> Safari departure</li>
+      </ul>
+      <p><i>(Syncs with Google/Outlook Coming Soon)</i></p>
+    </section>
+    <!-- Poll Section -->
+    <section class="poll-section" id="poll-section">
+      <h2>📊 Team Poll</h2>
+      <form id="pollForm">
+        <label><input type="radio" name="poll" value="Maasai Mara">Next safari: Maasai Mara</label>
+        <label><input type="radio" name="poll" value="Amboseli">Next safari: Amboseli</label>
+        <label><input type="radio" name="poll" value="Samburu">Next safari: Samburu</label>
+        <button type="submit">Vote</button>
+      </form>
+      <div class="poll-results" id="pollResults"></div>
+    </section>
+    <!-- Chat Section -->
+    <section class="chat-section" id="chat-section">
+      <h2>💬 Team Chat</h2>
+      <div class="chat-messages" id="chatMessages"></div>
+      <input type="text" class="chat-input" id="chatInput" placeholder="Type your message...">
+      <button class="chat-btn" id="chatSendBtn">Send</button>
+    </section>
+    <!-- Quotes Widget -->
+    <section class="quote-section" id="quote-section">
+      <h2>🌄 Safari Inspiration</h2>
+      <div id="quoteWidget"></div>
+    </section>
+    <!-- Resource Library -->
+    <section class="resource-section" id="resource-section">
+      <h2>📚 Resource Library</h2>
+      <ul>
+        <li><a href="https://docs.google.com/document/d/1_ItinerarySample" target="_blank">Sample Safari Itinerary (PDF)</a></li>
+        <li><a href="https://docs.google.com/document/d/1_InsuranceFormSample" target="_blank">Insurance Form</a></li>
+        <li><a href="https://docs.google.com/document/d/1_IndemnityWaiverSample" target="_blank">Indemnity Waiver</a></li>
+        <li><a href="https://docs.google.com/document/d/1_MarketingKitSample" target="_blank">Marketing Kit</a></li>
+        <li><a href="https://docs.google.com/spreadsheets/d/1_FinanceTableSample" target="_blank">Finance Table (Excel)</a></li>
+      </ul>
+      <p><b>Want more resources? Upload or request below!</b></p>
+    </section>
+    <!-- Finance Table Section -->
+    <section class="finance-section" id="finance-section">
+      <h2>📢 LENAWEI FINANCE UPDATE</h2>
+      <div><b>Date:</b> 28th June 2025<br>
+      <b>Issued by:</b> Lenawei Finance Department</div>
+      <hr>
+      <div class="finance-notice"><b>🔸 RECENT ACTIVITY</b></div>
+      <ul>
+        <li><b>✅ Ksh 1,000</b> paid at Huduma Center for company registration.</li>
+        <li>Each member was expected to contribute <b>at least Ksh 200</b>.</li>
+        <li>Proposed company names submitted for official search:
+          <ol>
+            <li>Lenawei Safaris</li>
+            <li>Lenawei Adventures</li>
+            <li>Safari Lenawei</li>
+          </ol>
+          <span style="color:#00695c;">→ The final name will be auto-selected by the system after processing.</span>
+        </li>
+      </ul>
+      <hr>
+      <div class="section-title">🎯 FINANCIAL OVERVIEW</div>
+      <ul id="financeOverviewList">
+        <li><b>Total Target:</b> Ksh <span id="financeTarget">11450</span></li>
+        <li><b>Total Contributions (Before Deduction):</b> Ksh <span id="financeContributions">1570</span></li>
+        <li><b>Less: Huduma Payment:</b> -Ksh <span id="hudumaPayment">1000</span></li>
+        <li><b>Current Group Balance:</b> Ksh <span id="groupBalance">570</span></li>
+        <li><b>Outstanding Balance:</b> Ksh <span id="outstandingBalance">10880</span></li>
+      </ul>
+      <hr>
+      <div class="section-title">🧾 MEMBER CONTRIBUTIONS</div>
+      <div class="finance-table-container">
+        <table class="finance-table" id="financeTable">
+          <thead>
+          <tr>
+            <th>Member</th>
+            <th>Contributed</th>
+            <th>Balance Due</th>
+          </tr>
+          </thead>
+          <tbody id="financeTableBody">
+            <tr>
+              <td>Gitonga</td>
+              <td data-edit="true">410</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Lucas</td>
+              <td data-edit="true">330</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Jackson</td>
+              <td data-edit="true">440</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Lucy Kago</td>
+              <td data-edit="true">190</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Pauline</td>
+              <td data-edit="true">200</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="edit-btn" id="editFinanceBtn">Edit Contributions</button>
+        <button class="save-btn" id="saveFinanceBtn" style="display:none;">Save</button>
+        <button class="cancel-btn" id="cancelFinanceBtn" style="display:none;">Cancel</button>
+      </div>
+      <div class="note" id="financeNote">
+        📌 <b>Note:</b> Lucy Kago is in debt of <b>Ksh 10</b> for underpaying the Ksh 200 minimum.
+      </div>
+      <hr>
+      <div class="section-title">📝 MEMBER REGISTRATION – NEXT STEPS</div>
+      <ul>
+        <li>🆔 National ID Number</li>
+        <li>📧 Valid Email Address</li>
+        <li>💼 Occupation (Pending finalization)</li>
+        <li>🖼️ Recent Passport Photo</li>
+      </ul>
+      <div>➤ Submit your details directly to the Finance Department or via our official group... <b>Big Minds</b>.<br>
+      Let’s finalize this together and keep Lenawei moving forward. <span style="color:#e65100;">🔥</span></div>
+      <hr>
+      <div>
+        <span style="color:#009688;">#FinanceDept</span> | <span style="color:#009688;">#LenaweiUpdates</span> | <span style="color:#009688;">#TeamWork</span>
+      </div>
+    </section>
+    <footer>
+      📱 <a href="https://facebook.com/lenaweisafaris" target="_blank">Facebook: <b>LENAWEI SAFARIS</b></a>
+      | <a href="https://instagram.com/lenawei_safaris" target="_blank">Instagram: <b>@lenawei_safaris</b></a>
+      <span style="display:block;margin-top:8px;">
+        👍 Likes: <a href="https://www.facebook.com/lenaweisafaris" target="_blank" style="color:#3b5998;font-weight:bold;text-decoration:none">5</a>
+        | 👥 Followers: <a href="https://www.instagram.com/lenawei_safaris" target="_blank" style="color:#d81b60;font-weight:bold;text-decoration:none">83</a>
+        | 📈 Health: <a href="https://www.instagram.com/lenawei_safaris" target="_blank" style="color:#388e3c;font-weight:bold;text-decoration:none">Excellent (Online!)</a>
+      </span>
+    </footer>
+    <div class="popup" id="popupBox"></div>
+  </div>
+  <script>
+    // --- Dark/Light Mode ---
+    const themeBtn = document.getElementById('themeToggle');
+    themeBtn.onclick = function() {
+      document.body.classList.toggle('dark-mode');
+      themeBtn.innerText = document.body.classList.contains('dark-mode') ? "☀️" : "🌙";
+      themeBtn.title = document.body.classList.contains('dark-mode') ? "Switch to light mode" : "Switch to dark mode";
+    };
+
+    // Custom dropdown
+    const dropdown = document.getElementById('mainDropdown');
+    const dropdownBtn = document.getElementById('dropdownBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    dropdownBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      let expanded = dropdownBtn.getAttribute('aria-expanded') === 'true';
+      dropdownBtn.setAttribute('aria-expanded', !expanded);
+      dropdown.classList.toggle('open');
+      if(!expanded) dropdownMenu.querySelector('a').focus();
+    });
+    document.addEventListener('click', function(e){
+      if(!dropdown.contains(e.target)) {
+        dropdown.classList.remove('open');
+        dropdownBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    dropdownMenu.querySelectorAll('a').forEach(a=>{
+      a.onclick = function(e){
+        let href = a.getAttribute('href');
+        if(href && href.startsWith("#")) {
+          e.preventDefault();
+          let target = document.querySelector(href);
+          if(target) {
+            target.scrollIntoView({behavior:"smooth", block:"start"});
+            target.style.boxShadow = "0 0 0 2px var(--accent)";
+            setTimeout(()=>{target.style.boxShadow=''}, 2000);
+          }
+          dropdown.classList.remove('open');
+          dropdownBtn.setAttribute('aria-expanded', 'false');
+        }
+      }
+    });
+
+    // Flirty/funny popups
+    const funnyPopups = [
+      "👀 Hey, only the Finance Manager is allowed here! Try the magic word... 🔑",
+      "🙈 Oops! This table is top-secret. Password, please. 😉",
+      "🦁 Sorry, only the pride leader can edit finances! Enter password to roar in.",
+      "💸 Hands off! The cash chest needs the right key. Password?",
+      "😏 Want to play with the numbers? Only finance bosses allowed. Password, please!",
+      "🤫 Shhh... it's confidential. Show me the password.",
+      "🤑 Edit access is for the money maestro only. Try your luck with the code!",
+      "💅 Not everyone can touch the gold, darling. Prove yourself with the password!",
+      "🚔 This is a password checkpoint. Show your credentials!",
+      "💃 Password please, before you dance on the numbers!"
+    ];
+    let popupCycle = 0;
+
+    const goodbyePopups = [
+      "Goodbye, you wild explorer! 🦁",
+      "Logging out already? The savannah misses you! 🏜️",
+      "Adios, finance queen/king. Go get that M-Pesa! 💸",
+      "Leaving so soon? The dashboard will dream about you! 🌙",
+      "You’ve tamed the wild for today. Until next time! 😉",
+      "Hakuna Matata, see you again! 🦓",
+      "The lions salute you as you log out. 🦁👋",
+      "Quick break? Don’t forget your water bottle! 💧",
+      "You and the dashboard make a perfect pair. Come back soon!",
+      "Bye bye, money maestro! 💸💛",
+      "You left... but the dashboard's heart stays with you! 💚"
+    ];
+
+    function showPopup(text) {
+      const box = document.getElementById('popupBox');
+      box.innerText = text;
+      box.style.display = 'block';
+      setTimeout(() => { box.style.display = 'none'; }, 6000);
+    }
+
+    function flirtyWelcome(name, gender) {
+      let flirtsF = [
+        `Hey gorgeous ${name.split(' ')[0].toUpperCase()} 😘, ready to rule the wilderness today?`,
+        `Queen ${name.split(' ')[0][0].toUpperCase()+name.split(' ')[0].substr(1)} — grace us with your magic! 🌺`,
+        `You light up the dashboard, ${name.split(' ')[0][0].toUpperCase()+name.split(' ')[0].substr(1)}. 💃`,
+        `Hey beautiful, did you bring your safari hat today?`,
+        `The dashboard just got 100% prettier! Welcome ${name.split(' ')[0][0].toUpperCase()+name.split(' ')[0].substr(1)}!`
+      ];
+      let flirtsM = [
+        `Hey handsome ${name.split(' ')[0].toUpperCase()} 😎, let's conquer the savannah!`,
+        `King ${name.split(' ')[0][0].toUpperCase()+name.split(' ')[0].substr(1)}, your pride is waiting. 🦁`,
+        `Welcome, real MVP ${name.split(' ')[0][0].toUpperCase()+name.split(' ')[0].substr(1)}! 💪`,
+        `Welcome bro, today's dashboard is all yours!`,
+        `Look who arrived! The dashboard just gained a real champion!`
+      ];
+      return gender === "female" ? flirtsF[Math.floor(Math.random()*flirtsF.length)]
+        : gender === "male" ? flirtsM[Math.floor(Math.random()*flirtsM.length)]
+        : `Welcome Maestro ${name.split(' ')[0].toUpperCase()}!`;
+    }
+    function flirtyGoodbye(gender) {
+      let list = goodbyePopups;
+      let msg = list[Math.floor(Math.random()*list.length)];
+      if (gender === "female" && msg.includes("queen/king")) msg = msg.replace("queen/king", "queen");
+      if (gender === "male" && msg.includes("queen/king")) msg = msg.replace("queen/king", "king");
+      return msg;
+    }
+    document.getElementById("logoutBtn").onclick = function() {
+      showPopup(flirtyGoodbye(loggedGender));
+      setTimeout(() => {
+        document.getElementById('content').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'flex';
+        loggedInUser=null; loggedGender='unknown';
+        document.getElementById('loginName').value = "";
+      }, 1800);
+    };
+
+    const allowedNames = {
+      'lucas bell': 'male',   'bell lucas': 'male', 'lucas': 'male', 'bell': 'male',
+      'lucy kago': 'female',  'kago lucy': 'female', 'lucy': 'female', 'kago': 'female',
+      'pauline tamara': 'female','tamara pauline': 'female','pauline':'female','tamara':'female',
+      'jackson wachiuri':'male','wachiuri jackson':'male','jackson':'male','wachiuri':'male',
+      'titus gitonga':'male','gitonga titus':'male','titus':'male','gitonga':'male',
+      'techlenawei':'unknown'
+    };
+    let loggedInUser = null, loggedGender = 'unknown', financeEditing = false, financeBackup = [];
+
+    function updateFinanceTable() {
+      let totalTarget = 11450;
+      let hudumaPayment = 1000;
+      let tbody = document.getElementById('financeTableBody');
+      let totalContributed = 0;
+      let minPay = 200;
+      let members = [];
+      for (let row of tbody.rows) {
+        let name = row.cells[0].innerText.trim();
+        let amount = parseInt(row.cells[1].innerText.trim()) || 0;
+        members.push({name, amount});
+        totalContributed += amount;
+      }
+      let groupBalance = totalContributed - hudumaPayment;
+      let outstanding = totalTarget - totalContributed;
+      document.getElementById('financeTarget').innerText = totalTarget;
+      document.getElementById('financeContributions').innerText = totalContributed;
+      document.getElementById('hudumaPayment').innerText = hudumaPayment;
+      document.getElementById('groupBalance').innerText = groupBalance;
+      document.getElementById('outstandingBalance').innerText = outstanding;
+      for (let i = 0; i < tbody.rows.length; ++i) {
+        let bal = 2290 - members[i].amount;
+        tbody.rows[i].cells[2].innerText = "Ksh " + bal;
+      }
+      let lucy = members.find(m=>m.name.toLowerCase().replace(/\s/g,'')==="lucykago");
+      let debt = lucy ? Math.max(0, minPay - lucy.amount) : 0;
+      let note = "📌 <b>Note:</b> Lucy Kago is in debt of <b>Ksh " + debt + "</b> for underpaying the Ksh 200 minimum.";
+      document.getElementById('financeNote').innerHTML = note;
+    }
+    function enableFinanceEditMode() {
+      financeEditing = true;
+      let tbody = document.getElementById('financeTableBody');
+      financeBackup = [];
+      for (let row of tbody.rows) {
+        financeBackup.push(row.cells[1].innerText);
+        let cell = row.cells[1];
+        cell.contentEditable = "true";
+        cell.style.background = "#fff9c4";
+        cell.style.color = "#222";
+        cell.style.border = "2px solid #009688";
+        cell.addEventListener('input', updateFinanceTable, {once: false});
+      }
+      document.getElementById('editFinanceBtn').style.display = "none";
+      document.getElementById('saveFinanceBtn').style.display = "";
+      document.getElementById('cancelFinanceBtn').style.display = "";
+      showPopup("✅ You can now edit the table. Click Save to apply changes.");
+    }
+    function disableFinanceEditMode(save) {
+      financeEditing = false;
+      let tbody = document.getElementById('financeTableBody');
+      for (let i = 0; i < tbody.rows.length; ++i) {
+        let cell = tbody.rows[i].cells[1];
+        cell.contentEditable = "false";
+        cell.style.background = "";
+        cell.style.color = "";
+        cell.style.border = "";
+        cell.removeEventListener('input', updateFinanceTable, {once: false});
+        if (!save) cell.innerText = financeBackup[i];
+      }
+      document.getElementById('editFinanceBtn').style.display = "";
+      document.getElementById('saveFinanceBtn').style.display = "none";
+      document.getElementById('cancelFinanceBtn').style.display = "none";
+      updateFinanceTable();
+      showPopup(save ? "✅ Changes saved and table updated." : "❌ Edit cancelled. Table restored.");
+    }
+    function showFinancePwdModal() {
+      document.getElementById('password-modal').style.display = "flex";
+      document.getElementById('finance-password').value = "";
+      document.getElementById('pwd-err').style.display = "none";
+      document.getElementById('funny-pop').innerText = funnyPopups[popupCycle++ % funnyPopups.length];
+      document.getElementById('finance-password').focus();
+    }
+    function closePwdModal() {
+      document.getElementById('password-modal').style.display = "none";
+    }
+    document.getElementById("finance-pwd-submit").onclick = function() {
+      let pass = document.getElementById('finance-password').value.trim();
+      if (pass === "0792164619") {
+        closePwdModal();
+        enableFinanceEditMode();
+      } else {
+        let msg = [
+          "😅 Still not the right password. Try again, superstar!",
+          "🙃 Wrong code. Did you call the Finance Manager for a hint?",
+          "🧐 That's not it! Maybe a little bribe will help? 😉",
+          "🚫 Access denied! You shall not pass... unless you know the magic digits.",
+          "😜 Password rejected! Finance Manager's secrets are safe for now.",
+          "🧩 Try again, puzzle master!",
+          "🥸 Are you the real Finance Manager? Enter the magic digits!",
+          "🔏 This vault is well-guarded. Wrong code!",
+          "🤐 Sorry, that code is as wrong as a zebra in a lion's den!",
+          "❌ Still no luck. Password or bust!"
+        ];
+        document.getElementById('pwd-err').style.display = "block";
+        document.getElementById('pwd-err').innerText = msg[Math.floor(Math.random() * msg.length)];
+        document.getElementById('finance-password').focus();
+      }
+    };
+
+    // Search (searches all text in the DOM, highlights and scrolls to each match, unlimited matches per element)
+    function clearHighlights() {
+      document.querySelectorAll('.highlighted-search').forEach(el=>{
+        el.outerHTML = el.innerText;
+      });
+    }
+    function searchDashboard(query) {
+      clearHighlights();
+      if(!query) return;
+      let found = false, count = 0;
+      let firstSpan;
+      function highlightInElement(element) {
+        if(['SCRIPT','STYLE'].includes(element.tagName)) return;
+        for(let node=element.firstChild; node; node=node.nextSibling) {
+          if(node.nodeType === 3) {
+            let dataL = node.data.toLowerCase();
+            let idx = -1, start = 0;
+            while((idx = dataL.indexOf(query, start)) !== -1) {
+              found = true; count++;
+              let span = document.createElement("span");
+              span.className = "highlighted-search";
+              span.style.background = "#ffe082";
+              span.style.color = "#c62828";
+              span.style.fontWeight = "bold";
+              let matchedText = node.splitText(idx);
+              let after = matchedText.splitText(query.length);
+              let clone = matchedText.cloneNode(true);
+              span.appendChild(clone);
+              matchedText.parentNode.replaceChild(span, matchedText);
+              if(!firstSpan) firstSpan = span;
+              node = after;
+              dataL = after.data.toLowerCase();
+              start = 0;
+            }
+          } else if(node.nodeType === 1) {
+            highlightInElement(node);
+          }
+        }
+      }
+      highlightInElement(document.getElementById("content"));
+      if(!found) showPopup("Sorry, nothing found for: " + query);
+      else {
+        if(firstSpan) setTimeout(()=>firstSpan.scrollIntoView({behavior:"smooth", block:"center"}), 120);
+        showPopup(`🔍 Found and highlighted ${count} result${count>1?'s':''}!`);
+      }
+    }
+
+    document.getElementById("loginBtn").onclick = function() {
+      const name = document.getElementById('loginName').value.trim().toLowerCase();
+      if (allowedNames[name]) {
+        loggedInUser = name;
+        loggedGender = allowedNames[name];
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        document.getElementById('welcomeBanner').style.display = 'block';
+        showPopup(flirtyWelcome(name, loggedGender));
+        document.getElementById('welcomeBanner').innerText = flirtyWelcome(name, loggedGender);
+        updateFinanceTable();
+      } else {
+        showPopup("😂 Who are you? You're not Lenawei. Try again!");
+      }
+    };
+    document.getElementById("loginName").addEventListener("keydown", function(e){
+      if(e.key==="Enter"){ document.getElementById("loginBtn").click(); }
+    });
+    document.getElementById("editFinanceBtn").onclick = function() { showFinancePwdModal(); };
+    document.getElementById("saveFinanceBtn").onclick = function(){ disableFinanceEditMode(true); };
+    document.getElementById("cancelFinanceBtn").onclick = function(){ disableFinanceEditMode(false); };
+    document.getElementById('financeTableBody').addEventListener('dblclick', function(e) {
+      if (!financeEditing && e.target && e.target.getAttribute('data-edit') === "true") {
+        showPopup("🚫 Only the Finance Manager can edit this table. 😉");
+      }
+    });
+    document.getElementById("searchInput").addEventListener("keydown", function(e){
+      if (e.key === "Enter") document.getElementById("searchBtn").click();
+    });
+    document.getElementById("searchBtn").onclick = function() {
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      searchDashboard(q);
+    };
+    document.getElementById("downloadPDF").onclick = function() { window.print(); };
+
+    // Gallery Upload (Demo/Preview Only; no backend)
+    document.getElementById('galleryUploadBtn').onclick = function() {
+      let input = document.getElementById('galleryUpload');
+      let msg = document.getElementById('galleryUploadMsg');
+      let file = input.files[0];
+      if(file && file.type.startsWith("image/")){
+        let reader = new FileReader();
+        reader.onload = function(e){
+          let img = document.createElement("img");
+          img.src = e.target.result;
+          img.alt = file.name;
+          img.title = "Uploaded";
+          img.style.opacity = ".85";
+          img.onclick = function() { window.open(img.src, "_blank"); };
+          document.querySelector('.gallery-carousel').appendChild(img);
+          msg.innerText = "Photo added!";
+          setTimeout(()=>msg.innerText="", 2000);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        msg.innerText = "Please select a valid image file!";
+      }
+    };
+
+    // Kanban drag & drop (simple demo)
+    let draggedTask = null;
+    document.querySelectorAll('.kanban-task').forEach(task => {
+      task.addEventListener('dragstart', function(e){
+        draggedTask = this;
+        setTimeout(()=>this.style.display='none',0);
+      });
+      task.addEventListener('dragend', function(e){
+        this.style.display='';
+        draggedTask = null;
+      });
+    });
+    document.querySelectorAll('.kanban-col').forEach(col => {
+      col.addEventListener('dragover', function(e){e.preventDefault();});
+      col.addEventListener('drop', function(e){
+        if(draggedTask) this.appendChild(draggedTask);
+      });
+    });
+
+    // Team Poll demo
+    let pollData = { "Maasai Mara":0, "Amboseli":0, "Samburu":0 };
+    document.getElementById('pollForm').onsubmit = function(e){
+      e.preventDefault();
+      let val = (document.querySelector('input[name="poll"]:checked')||{}).value;
+      if(val) {
+        pollData[val]++;
+        showPollResults();
+        showPopup("👍 Thanks for voting!");
+      }
+    };
+    function showPollResults() {
+      let total = pollData["Maasai Mara"]+pollData["Amboseli"]+pollData["Samburu"];
+      let html = "";
+      for(let k in pollData){
+        let pct = total ? Math.round(100*pollData[k]/total) : 0;
+        html += `<div>${k}: <span class="poll-bar"><span class="poll-bar-inner" style="width:${pct}%;">${pollData[k]} (${pct}%)</span></span></div>`;
+      }
+      document.getElementById('pollResults').innerHTML = html;
+    }
+    showPollResults();
+
+    // Simple chat demo (local only)
+    let chatBox = document.getElementById('chatMessages');
+    document.getElementById('chatSendBtn').onclick = function(){
+      let val = document.getElementById('chatInput').value.trim();
+      if(val){
+        let msg = document.createElement("div");
+        msg.textContent = (loggedInUser ? loggedInUser.split(" ")[0] : "Anon") + ": " + val;
+        chatBox.appendChild(msg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        document.getElementById('chatInput').value = "";
+        showPopup([
+          "Message sent! 📬","Chat updated! 💬","Look who's talking! 😁","Nice, keep it going! 🔥"
+        ][Math.floor(Math.random()*4)]);
+      }
+    };
+
+    // Quotes widget
+    const quotes = [
+      "‘The only man I envy is the man who has not yet been to Africa—for he has so much to look forward to.’ – Richard Mullin",
+      "‘To travel is to live.’ – Hans Christian Andersen",
+      "‘Adventure is worthwhile.’ – Aesop",
+      "‘The world is a book and those who do not travel read only one page.’ – Augustine of Hippo",
+      "‘The gladdest moment in human life is a departure into unknown lands.’ – Sir Richard Burton",
+      "‘You cannot leave Africa, Africa said. It is always with you, there inside your head.’ – Bridget Dore"
+    ];
+    function rotateQuote(){
+      document.getElementById('quoteWidget').innerText = quotes[Math.floor(Math.random()*quotes.length)];
+    }
+    rotateQuote();
+    setInterval(rotateQuote, 15000);
+
+    // Search scrolls to and highlights ALL matches, first match scrolled into view
+    function clearHighlights() {
+      document.querySelectorAll('.highlighted-search').forEach(el=>{
+        el.outerHTML = el.innerText;
+      });
+    }
+    function searchDashboard(query) {
+      clearHighlights();
+      if(!query) return;
+      let found = false, count = 0;
+      let firstSpan;
+      function highlightInElement(element) {
+        if(['SCRIPT','STYLE'].includes(element.tagName)) return;
+        for(let node=element.firstChild; node; node=node.nextSibling) {
+          if(node.nodeType === 3) {
+            let dataL = node.data.toLowerCase();
+            let idx = -1;
+            while((idx = dataL.indexOf(query)) !== -1) {
+              found = true; count++;
+              let span = document.createElement("span");
+              span.className = "highlighted-search";
+              span.style.background = "#ffe082";
+              span.style.color = "#c62828";
+              span.style.fontWeight = "bold";
+              let matchedText = node.splitText(idx);
+              let after = matchedText.splitText(query.length);
+              let clone = matchedText.cloneNode(true);
+              span.appendChild(clone);
+              matchedText.parentNode.replaceChild(span, matchedText);
+              if(!firstSpan) firstSpan = span;
+              node = after;
+              dataL = after.data.toLowerCase();
+            }
+          } else if(node.nodeType === 1) {
+            highlightInElement(node);
+          }
+        }
+      }
+      highlightInElement(document.getElementById("content"));
+      if(!found) showPopup("Sorry, nothing found for: " + query);
+      else {
+        if(firstSpan) setTimeout(()=>firstSpan.scrollIntoView({behavior:"smooth", block:"center"}), 120);
+        showPopup(`🔍 Found and highlighted ${count} result${count>1?'s':''}!`);
+      }
+    }
+
+    document.getElementById("searchInput").addEventListener("keydown", function(e){
+      if (e.key === "Enter") document.getElementById("searchBtn").click();
+    });
+    document.getElementById("searchBtn").onclick = function() {
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      searchDashboard(q);
+    };
+
+    document.getElementById("loginBtn").onclick = function() {
+      const name = document.getElementById('loginName').value.trim().toLowerCase();
+      if (allowedNames[name]) {
+        loggedInUser = name;
+        loggedGender = allowedNames[name];
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        document.getElementById('welcomeBanner').style.display = 'block';
+        showPopup(flirtyWelcome(name, loggedGender));
+        document.getElementById('welcomeBanner').innerText = flirtyWelcome(name, loggedGender);
+        updateFinanceTable();
+      } else {
+        showPopup([
+          "😂 Who are you? You're not Lenawei. Try again!",
+          "🤔 Access denied! Lenawei only.",
+          "😜 Nice try, but you need to be one of us!",
+          "🚫 Sorry, imposter detected!",
+          "👀 Only special people get in here!"
+        ][Math.floor(Math.random()*5)]);
+      }
+    };
+    document.getElementById("loginName").addEventListener("keydown", function(e){
+      if(e.key==="Enter"){ document.getElementById("loginBtn").click(); }
+    });
+    document.getElementById("editFinanceBtn").onclick = function() { showFinancePwdModal(); };
+    document.getElementById("saveFinanceBtn").onclick = function(){ disableFinanceEditMode(true); };
+    document.getElementById("cancelFinanceBtn").onclick = function(){ disableFinanceEditMode(false); };
+    document.getElementById('financeTableBody').addEventListener('dblclick', function(e) {
+      if (!financeEditing && e.target && e.target.getAttribute('data-edit') === "true") {
+        showPopup([
+          "🚫 Only the Finance Manager can edit this table. 😉",
+          "👀 Hands off! Editing is restricted.",
+          "😅 Nice try, but not today!",
+          "🔒 Locked for finance eyes only!"
+        ][Math.floor(Math.random()*4)]);
+      }
+    });
+    window.onload = updateFinanceTable;
+  </script>
+</body>
+</html>
